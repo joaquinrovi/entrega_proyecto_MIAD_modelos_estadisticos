@@ -1,2 +1,8 @@
 "version";"descripcion";"variables_eliminadas";"n_predictores";"r2_ajustado";"cv_rmse";"kaggle_mse";"kaggle_rmse";"posicion_leaderboard";"fecha"
 "v1";"Modelo lineal OLS. Seleccion: alias()+VIF iterativo(umbral 10)+F parcial. Estructura: Size.sqf.^2 + interaccion Size.sqf.:HallwayType";"Totales(2)+SubwayStation+3 aliased+7 por VIF+3 por F parcial";13;0,8964;30806;1063214600;32608;"17/20";"2026-07-05"
+"v2";"Reincorporar YearBuilt al modelo final";"Ninguna (se agrega YearBuilt de vuelta)";14;0,899;33962;NA;NA;"No subido (CV-RMSE empeoro, se descarta)";"2026-07-05"
+"v3";"Agregar curvatura Floor^2 al modelo final";"Ninguna (se agrega Floor^2)";14;0,896;34294;NA;NA;"No subido (CV-RMSE empeoro, se descarta)";"2026-07-05"
+"v4";"Agregar interaccion Size.sqf.:TimeToSubway al modelo final";"Ninguna (se agrega interaccion)";17;0,903;33271;NA;NA;"No subido (CV-RMSE empeoro, se descarta)";"2026-07-05"
+"v5";"Modelo COMPLETO (no reducido por VIF): conserva variables colineales + SubwayStation. Solo se quitan los 2 totales exactos. Size^2 + interacciones Size:HallwayType + Size:TimeToSubway + Size:TimeToBusStop";"Solo los 2 totales (suma exacta de componentes)";27;0,9199;30242;825957319,84;28739;"Por confirmar";"2026-07-05"
+"v5";"Modelo COMPLETO (no reducido por VIF): conserva variables colineales + SubwayStation. Solo se quitan los 2 totales exactos. Size^2 + interacciones Size:HallwayType + Size:TimeToSubway + Size:TimeToBusStop";"Solo los 2 totales (suma exacta de componentes)";27;0,9199;30242;825957319,84;28739;"16/20";"2026-07-05"
+"v6";"Modelo completo + interacciones Size×(HallwayType+TimeToBusStop+TimeToSubway+SubwayStation) optimizadas por CV";"Solo los 2 totales exactos";27;0,9222;29961;794966822,28;28195;"16/20";"2026-07-05"
