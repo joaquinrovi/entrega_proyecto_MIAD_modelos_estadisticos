@@ -1,0 +1,2 @@
+"version";"descripcion";"variables_eliminadas";"n_predictores";"r2_ajustado";"cv_rmse";"kaggle_mse";"kaggle_rmse";"posicion_leaderboard";"fecha"
+"v1";"Modelo lineal OLS. Seleccion: alias()+VIF iterativo(umbral 10)+F parcial. Estructura: Size.sqf.^2 + interaccion Size.sqf.:HallwayType";"Totales(2)+SubwayStation+3 aliased+7 por VIF+3 por F parcial";13;0,8964;30806;1063214600;32608;"17/20";"2026-07-05"
