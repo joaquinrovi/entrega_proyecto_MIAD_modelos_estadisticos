@@ -1,7 +1,0 @@
-"COLUMNA";"CONTEO";"CATEGORIAS";"TOP";"FRECUENCIA";"PORCENTAJE"
-"HallwayType";3932;3;"terraced";2380;60,53
-"HeatingType";3932;2;"individual_heating";3720;94,61
-"AptManageType";3932;2;"management_in_trust";3684;93,69
-"TimeToBusStop";3932;3;"0~5min";2977;75,71
-"TimeToSubway";3932;5;"0-5min";1830;46,54
-"SubwayStation";3932;8;"Kyungbuk_uni_hospital";1072;27,26
