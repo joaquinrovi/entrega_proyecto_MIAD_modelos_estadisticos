@@ -329,6 +329,7 @@ cat(strrep("=", 60), "\n")
 #=========================================
 
 # Eliminar la columna índice
+train <- read.csv("Train real state.csv", stringsAsFactors = TRUE)
 train <- train %>%
   select(-X)
 
@@ -362,6 +363,8 @@ str(train)
 
 # Paquetes a usar
 
+install.packages(c("tidyverse", "car", "MASS", "lmtest", "corrplot", "GGally", "performance", "broom", "caret"), quiet = TRUE)
+
 library(tidyverse)
 library(car)
 library(MASS)
@@ -386,29 +389,22 @@ length(coef(modelo_completo))
 
 # Tabla de coeficientes
 
-library(broom)
-
 tabla_coeficientes <-
-  tidy(modelo_completo)
+  broom::tidy(modelo_completo)
 
 tabla_coeficientes
 
 # Medidas generales del modelo
 
 resumen <- summary(modelo_completo)
-
 resumen$r.squared
-
 resumen$adj.r.squared
-
 resumen$sigma
-
 resumen$fstatistic
 
 # Comparación entre número de observaciones y parámetros
 
 nrow(train)
-
 length(coef(modelo_completo))
 
 # ETAPA 3
@@ -418,22 +414,20 @@ length(coef(modelo_completo))
 # Diagnóstico de multicolinealidad
 #=========================================
 
-library(car)
+# VIF (Variance Inflation Factor) para el modelo completo
 
-vif_modelo <- vif(modelo_completo)
-
+vif_modelo <- car::vif(modelo_completo)
 vif_modelo
 
 # Con variables categóricas
 vif_tabla <- data.frame(vif_modelo)
 
-vif_tabla$GVIF_Ajustado <-
-    vif_tabla$GVIF^(1/(2*vif_tabla$Df))
+vif_tabla$GVIF_Ajustado <- vif_tabla$GVIF^(1/(2*vif_tabla$Df))
 
 vif_tabla
 
 # Ordenar los VIF
-sort(vif(modelo_completo),
+sort(car::vif(modelo_completo),
      decreasing = TRUE)
 
 vif_tabla |>
@@ -467,6 +461,8 @@ modelo_base <- lm(SalePrice ~ YearBuilt + YrSold + MonthSold + Size.sqf. + Floor
   + N_SchoolNearBy.High. + N_SchoolNearBy.University. + N_FacilitiesInApt + HallwayType + HeatingType + AptManageType + TimeToBusStop 
   + TimeToSubway + SubwayStation, data = train)
 
+summary(modelo_base)
+
 # ETAPA 4
 # Selección del modelo de regresión
 
@@ -479,6 +475,8 @@ modelo_nulo <- lm(
   SalePrice ~ 1,
   data = train
 )
+
+summary(modelo_nulo)
 
 # Backward selection
 
@@ -513,74 +511,44 @@ modelo_stepwise <- stepAIC(
 # Comparación de modelos
 
 comparacion <- data.frame(
-
-Modelo = c(
-  "Completo",
-  "Backward",
-  "Forward",
-  "Stepwise"
-),
-
-AIC = c(
-  AIC(modelo_base),
-  AIC(modelo_backward),
-  AIC(modelo_forward),
-  AIC(modelo_stepwise)
-),
-
-BIC = c(
-  BIC(modelo_base),
-  BIC(modelo_backward),
-  BIC(modelo_forward),
-  BIC(modelo_stepwise)
-),
-
-R2 = c(
-  summary(modelo_base)$r.squared,
-  summary(modelo_backward)$r.squared,
-  summary(modelo_forward)$r.squared,
+Modelo = c("Completo", "Backward", "Forward", "Stepwise"),
+AIC = c(AIC(modelo_base), AIC(modelo_backward), AIC(modelo_forward), AIC(modelo_stepwise)),
+BIC = c(BIC(modelo_base), BIC(modelo_backward), BIC(modelo_forward), BIC(modelo_stepwise)),
+R2 = c(summary(modelo_base)$r.squared, summary(modelo_backward)$r.squared, summary(modelo_forward)$r.squared,
   summary(modelo_stepwise)$r.squared
 ),
-
-R2_Ajustado = c(
-  summary(modelo_base)$adj.r.squared,
-  summary(modelo_backward)$adj.r.squared,
-  summary(modelo_forward)$adj.r.squared,
+R2_Ajustado = c(summary(modelo_base)$adj.r.squared, summary(modelo_backward)$adj.r.squared, summary(modelo_forward)$adj.r.squared,
   summary(modelo_stepwise)$adj.r.squared
-)
-
-)
-
+))
 comparacion
 
 # ¿Cómo elegir el mejor?
 
-# Criterio	| Lo deseable
-# AIC	| Menor
-# BIC	| Menor
-# R² ajustado	| Mayor
+# Criterio	          | Lo deseable
+# AIC	                | Menor
+# BIC                 | Menor
+# R² ajustado	        | Mayor
 # Número de variables	| Menor
-# Interpretabilidad	| Mayor
+# Interpretabilidad	  | Mayor
 
-summary(modelo_stepwise)
+summary(modelo_forward)
 
 # ETAPA 4.5
 # Validación del modelo seleccionado
 
-# Suponiendo que el mejor modelo es el stepwise
-
-summary(modelo_stepwise)
+# Suponiendo que el mejor modelo es el foward
+summary(modelo_forward)
 
 # Observar la significacia global del modelo
 
 # Estadístico F
-summary(modelo_stepwise)$fstatistic
+summary(modelo_forward)$fstatistic
 
 # Valor p global
 pf(
-  summary(modelo_stepwise)$fstatistic[1],
-  summary(modelo_stepwise)$fstatistic[2],
-  summary(modelo_stepwise)$fstatistic[3],
+  summary(modelo_forward)$fstatistic[1],
+  summary(modelo_forward)$fstatistic[2],
+  summary(modelo_forward)$fstatistic[3],
   lower.tail = FALSE
 )
 
@@ -592,8 +560,7 @@ pf(
 # Significancia individual de los coeficientes
 library(broom)
 
-coeficientes <- tidy(modelo_stepwise)
-
+coeficientes <- tidy(modelo_forward)
 coeficientes
 
 coeficientes |>
@@ -604,17 +571,15 @@ coeficientes |>
   arrange(desc(abs(statistic)))
 
 # Intervalos de confianza
-
-confint(modelo_stepwise)
+confint(modelo_forward)
 
 # Revisar el número de variables
 
-length(coef(modelo_stepwise))
+length(coef(modelo_forward))
 
 # Comparar el modelo completo con el seleccionado
 
-anova(modelo_base,
-      modelo_stepwise)
+anova(modelo_base, modelo_forward)
 
 # Tabla resumen (recomendación)
 
@@ -636,20 +601,20 @@ anova(modelo_base,
 #=========================================
 
 par(mfrow = c(2,2))
-
-plot(modelo_stepwise)
-
+plot(modelo_forward)
 par(mfrow = c(1,1))
 
 # Supuesto de linealidad
 
 plot(
-    modelo_stepwise$fitted.values,
-    resid(modelo_stepwise),
+    modelo_forward$fitted.values,
+    resid(modelo_forward),
 
     xlab="Valores ajustados",
     ylab="Residuos"
 )
+
+png("residuos_vs_ajustados.png", width = 800, height = 600, res = 120)
 
 abline(h=0,
        col="red",
@@ -657,17 +622,18 @@ abline(h=0,
 
 library(car)
 
-crPlots(modelo_stepwise)
+crPlots(modelo_forward)
 
 # Normalidad de los residuos
 
-residuos <- residuals(modelo_stepwise)
-
+residuos <- residuals(modelo_forward)
 hist(residuos, breaks=30, probability=TRUE,
       main="Histograma de residuos",
       xlab="Residuos")
 
 lines(density(residuos), lwd=2, col="blue")
+
+png("histograma_residuos.png", width = 800, height = 600, res = 120)
 
 qqnorm(residuos)
 
@@ -684,7 +650,11 @@ shapiro.test(residuos)
 
 # Homocedasticidad
 
-plot(modelo_stepwise)
+plot(modelo_forward$fitted.values, residuos,
+     xlab="Valores ajustados",
+     ylab="Residuos")
+
+png("residuos_vs_ajustados_homocedasticidad.png", width = 800, height = 600, res = 120)
 
 library(lmtest)
 
@@ -695,7 +665,7 @@ library(lmtest)
 
 # Rechazar si p-value < 0.05
 
-bptest(modelo_stepwise)
+bptest(modelo_forward)
 
 # Independencia de los residuos
 
@@ -704,13 +674,13 @@ bptest(modelo_stepwise)
 # Ho: No hay autocorrelación de primer orden en los residuos.
 # Ha: Hay autocorrelación de primer orden en los residuos.
 
-dwtest(modelo_stepwise)
+dwtest(modelo_forward)
 
 # Observaciones influyentes
 
 # Distancia de Cook
 
-cook <- cooks.distance(modelo_stepwise)
+cook <- cooks.distance(modelo_forward)
 
 plot(cook, type="h",
      main="Distancia de Cook",
@@ -724,18 +694,18 @@ abline(h=4/length(cook),col="red",lwd=2)
 
 # Valores leverage
 
-plot(hatvalues(modelo_stepwise), type="h",
+plot(hatvalues(modelo_forward), type="h",
      main="Valores leverage",
      ylab="Leverage",
      xlab="Índice de observación")
 
 # Residuos estudentizados
 
-rstudent(modelo_stepwise)
+rstudent(modelo_forward)
 
 # Multicolinealidad
 
-vif(modelo_stepwise)
+vif(modelo_forward)
 
 # Esta tabla puede quedar muy bien en el informe pienso yo.
 
@@ -759,67 +729,44 @@ library(caret)
 set.seed(123)
 
 indices <- createDataPartition(train$SalePrice, p = 0.80, list = FALSE)
-
 datos_train <- train[indices, ]
-
 datos_test <- train[-indices, ]
 
 # Ajustar el modelo usando únicamente entrenamiento
 
-modelo_final <- lm(
-
-SalePrice ~
-# fórmula seleccionada del modelo seleccionada por el equipo
-,
-data = datos_train
-)
+modelo_final <- modelo_forward
 
 # Realizar las predicciones
 
 predicciones <- predict(modelo_final, newdata = datos_test)
 
 # Calcular errores
-
 errores <- datos_test$SalePrice - predicciones
-
 # Calcular métricas de desempeño
-
 MSE <- mean(errores^2)
 MSE
-
 RMSE <- sqrt(MSE)
 RMSE
-
 MAE <- mean(abs(errores))
 MAE
-
 SST <- sum(
-
 (datos_test$SalePrice -
  mean(datos_test$SalePrice))^2
-
 )
-
 SSE <- sum(errores^2)
 R2_pred <- 1 - SSE/SST
 R2_pred
-
 # Resumen de métricas
 
 metricas <- data.frame(MSE = MSE, RMSE = RMSE, MAE = MAE, 
 R2_Prediccion = R2_pred)
 metricas
-
 # Gráfico observado vs predicho
-
 plot(datos_test$SalePrice, predicciones, pch = 19, xlab = 
 "Precio observado", ylab = "Precio predicho")
 abline(0, 1, col = "red", lwd = 2)
-
 # Distribución de errores
-
 hist(errores, breaks = 30, main = "Distribución de errores", xlab = "Error")
-
 # Error relativo promedio
 
 MAPE <- mean(abs(errores) /datos_test$SalePrice) * 100
@@ -834,3 +781,28 @@ R2 = c(summary(modelo_final)$r.squared,R2_pred))
 # Si ambos R2 son similares, el modelo generaliza adecuadamente.
 # Si el R2 de entrenamiento es mucho mayor que el de prueba,
 # existe evidencia de sobreajuste.
+
+#################################################################
+#-----------------------------------------------------------------#
+# Testing del modelo final con el conjunto de prueba externo
+#-----------------------------------------------------------------#
+#################################################################
+
+# Cargar el conjunto de prueba de Kaggle
+test <- read.csv("Test real state.csv", stringsAsFactors = TRUE)
+
+ids <- test$X        # guardar los Id
+
+test$X <- NULL       # quitarla para predecir
+
+predicciones <- predict(modelo_forward, newdata = test)
+
+submission <- data.frame(
+    Id = ids,
+    Predicted = round(predicciones)
+)
+
+write.csv(submission,
+          "submission.csv",
+          row.names = FALSE,
+          quote = FALSE)
