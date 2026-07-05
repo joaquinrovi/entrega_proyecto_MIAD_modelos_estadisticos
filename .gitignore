@@ -1,0 +1,7 @@
+﻿.venv/
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+.ipynb_checkpoints/
+~$*.xlsx
