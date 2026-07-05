@@ -44,13 +44,6 @@ docs/              -> entregas en PDF (EDA, informe final)
    `submission_grupoX.csv`, listo para subir a Kaggle en el formato
    `Id,Predicted`.
 
-## Estado actual del modelo
-- **v1**: modelo lineal (OLS) con selección de variables vía colinealidad
-  exacta (`alias`), VIF iterativo (umbral 10) y prueba F parcial;
-  estructura con `Size.sqf.²` e interacción `Size.sqf.:HallwayType`.
-  - CV-RMSE: ~\,806
-  - Kaggle RMSE: ~\,608 (MSE ≈ 1.06e9)
-  - Posición leaderboard: 17/20
 
 Ver `outputs/submissions/log_experimentos` para el detalle de todas las
 versiones probadas.
