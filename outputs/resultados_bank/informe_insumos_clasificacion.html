@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Insumos para el informe: clasificación de suscripción bancaria</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #526078;
+      --accent: #176b87;
+      --accent-soft: #e9f4f7;
+      --border: #d7dee8;
+      --surface: #ffffff;
+      --background: #f5f7fa;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--ink);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 40px auto;
+      padding: 56px 64px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 14px 40px rgba(23, 32, 51, 0.08);
+    }
+
+    h1,
+    h2 {
+      line-height: 1.25;
+      color: #12374a;
+    }
+
+    h1 {
+      margin: 0 0 36px;
+      padding-bottom: 20px;
+      border-bottom: 4px solid var(--accent);
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: -0.025em;
+    }
+
+    h2 {
+      margin: 44px 0 16px;
+      font-size: 1.45rem;
+    }
+
+    p {
+      margin: 0 0 18px;
+    }
+
+    ol,
+    ul {
+      margin: 0 0 22px;
+      padding-left: 28px;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    code {
+      padding: 0.12em 0.38em;
+      border: 1px solid #dbe5ea;
+      border-radius: 5px;
+      background: #f2f7f9;
+      color: #15516a;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.9em;
+    }
+
+    .table-wrap {
+      margin: 22px 0 26px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    thead {
+      background: #12374a;
+      color: #ffffff;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f7fafb;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .callout {
+      margin: 22px 0;
+      padding: 18px 22px;
+      border-left: 5px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      background: var(--accent-soft);
+    }
+
+    .callout p:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      color: #102f3f;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        font-size: 16px;
+      }
+
+      main {
+        width: 100%;
+        margin: 0;
+        padding: 32px 22px;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        font-size: 11pt;
+      }
+
+      main {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        box-shadow: none;
+      }
+
+      h2 {
+        break-after: avoid;
+      }
+
+      table,
+      ul,
+      ol {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Insumos para el informe: clasificación de suscripción bancaria</h1>
+
+    <h2>1. Revisión de los datos y del notebook</h2>
+
+    <p>El conjunto de entrenamiento contiene 31.648 clientes, 16 variables predictoras, un identificador y la respuesta binaria <code>Subscription</code>. El conjunto de prueba contiene 13.563 clientes y las mismas columnas, salvo la respuesta. No se encontraron valores faltantes, filas duplicadas, identificadores repetidos ni niveles categóricos presentes únicamente en uno de los dos conjuntos.</p>
+
+    <p>La clase positiva representa 3.697 observaciones (11,68%). Por este desbalance, la exactitud no debe emplearse como criterio principal. La comparación se realizó mediante AUC, que evalúa la capacidad de ordenar a los clientes positivos por encima de los negativos sin depender de un umbral.</p>
+
+    <p>La primera columna de los CSV, leída por R como <code>X</code>, corresponde al identificador original. Se conservó para enlazar las predicciones con el test, pero no se utilizó como predictor, pues no describe al cliente y podría introducir una señal artificial.</p>
+
+    <p>En el notebook exploratorio hay dos referencias residuales a una respuesta anterior: las celdas de distribución y resumen final usan <code>df$y</code> y la categoría <code>"yes"</code>. La respuesta correcta es <code>df$Subscription</code>, codificada como <code>0/1</code>. Las demás secciones que emplean <code>Subscription</code> sí siguen la estructura actual.</p>
+
+    <h2>2. Estrategia de estimación y validación</h2>
+
+    <p>Se compararon cuatro especificaciones permitidas por la restricción del curso:</p>
+
+    <ol>
+      <li>Regresión logística principal con los 16 predictores originales.</li>
+      <li>Regresión logística transformada, con transformaciones logarítmicas para saldo, duración, número de contactos y antecedentes.</li>
+      <li>Regresión logística con splines naturales para edad, día y duración del último contacto, manteniendo efectos principales para las variables categóricas.</li>
+      <li>Análisis discriminante lineal (LDA) sobre variables transformadas y codificación indicadora de las variables categóricas.</li>
+    </ol>
+
+    <p>La validación consistió en cinco folds estratificados, con semilla 202613. Así, cada observación recibió una predicción de un modelo que no fue estimado con ella. La selección se basó exclusivamente en el AUC de estas predicciones fuera de muestra (OOF).</p>
+
+    <h2>3. Comparación de desempeño</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Modelo</th>
+            <th>AUC promedio por fold</th>
+            <th>Desviación estándar</th>
+            <th>AUC OOF</th>
+            <th>Log-loss</th>
+            <th>Brier</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Logística con splines</td>
+            <td>0,9091</td>
+            <td>0,0071</td>
+            <td><strong>0,9090</strong></td>
+            <td><strong>0,2285</strong></td>
+            <td><strong>0,0695</strong></td>
+          </tr>
+          <tr>
+            <td>Logística transformada</td>
+            <td>0,9051</td>
+            <td>0,0072</td>
+            <td>0,9049</td>
+            <td>0,2305</td>
+            <td>0,0699</td>
+          </tr>
+          <tr>
+            <td>Logística principal</td>
+            <td>0,9036</td>
+            <td>0,0083</td>
+            <td>0,9035</td>
+            <td>0,2413</td>
+            <td>0,0715</td>
+          </tr>
+          <tr>
+            <td>LDA transformado</td>
+            <td>0,9008</td>
+            <td>0,0071</td>
+            <td>0,9007</td>
+            <td>0,2627</td>
+            <td>0,0781</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Se propone la regresión logística con splines porque obtuvo el mayor AUC OOF y también los menores log-loss y Brier. Su AUC superó al LDA en 0,0083. La elección también es coherente con la estructura de los datos: hay predictores muy asimétricos, variables indicadoras y relaciones no lineales, condiciones menos favorables para los supuestos de normalidad multivariada y covarianzas comunes de LDA. La regresión logística no exige normalidad de los predictores, y los splines permiten modelar curvatura sin cambiar de familia de clasificación.</p>
+
+    <div class="callout">
+      <p>El AUC estimado es una medida de validación interna y no es el puntaje de Kaggle. El resultado de la competencia solo se conocerá al subir el archivo de predicciones.</p>
+    </div>
+
+    <h2>4. Interpretación de resultados</h2>
+
+    <p>Los coeficientes de una regresión logística representan cambios en el logaritmo de los odds, manteniendo constantes las demás variables. Al exponenciarlos se obtienen odds ratios. Algunos resultados de la especificación principal, cuyos parámetros poseen interpretación directa, son:</p>
+
+    <ul>
+      <li>Una duración adicional de 60 segundos multiplica los odds estimados por aproximadamente 1,285, pues el odds ratio por segundo es 1,00418.</li>
+      <li>Un resultado exitoso en la campaña anterior multiplica los odds por 10,32 frente a un resultado desconocido (IC 95%: 8,45–12,60).</li>
+      <li>Un tipo de contacto desconocido multiplica los odds por 0,196 frente al contacto celular, es decir, se asocia con una reducción cercana al 80,4% (IC 95%: 0,165–0,233).</li>
+      <li>No tener crédito hipotecario multiplica los odds por 1,98 frente a tenerlo (IC 95%: 1,79–2,20).</li>
+      <li>Cada contacto adicional dentro de la campaña multiplica los odds por 0,904, una reducción aproximada del 9,6% (IC 95%: 0,882–0,926).</li>
+      <li>Tener préstamo personal multiplica los odds por 0,657 frente a no tenerlo (IC 95%: 0,570–0,756).</li>
+      <li>Ser estudiante multiplica los odds por 1,92 frente a la categoría laboral de referencia, <code>blue-collar</code> (IC 95%: 1,49–2,48).</li>
+    </ul>
+
+    <p>Estas asociaciones no deben interpretarse causalmente.</p>
+
+    <p>En el modelo seleccionado, los coeficientes de las bases spline no se deben interpretar de forma aislada. Su efecto se analiza conjuntamente mediante perfiles de probabilidad:</p>
+
+    <ul>
+      <li>Al fijar la duración en 58 segundos, la probabilidad promedio estimada es 1,11%; con 179 segundos es 7,35%, y con 543 segundos asciende a 27,11%.</li>
+      <li>Al fijar el número de contactos de campaña en uno, la probabilidad promedio es 12,86%; con cinco contactos es 9,73%.</li>
+      <li>La relación con edad es no lineal: el perfil disminuye entre 29 y 39 años y vuelve a aumentar hacia los 56 años.</li>
+      <li>El perfil del saldo es creciente, aunque su efecto es mucho más moderado que el de la duración.</li>
+    </ul>
+
+    <div class="callout">
+      <p>La variable <code>Last.Contact.Duration</code> merece una salvedad. Es adecuada si el objetivo es clasificar después de realizado el contacto, tal como permiten los datos de la competencia. Si el uso operativo fuera decidir a quién llamar antes de iniciar la conversación, esta variable no estaría disponible y debería excluirse; ese sería un problema predictivo distinto.</p>
+    </div>
+
+    <h2>5. Matriz de clasificación como análisis complementario</h2>
+
+    <p>El umbral que maximiza el índice de Youden en las predicciones OOF fue 0,1110. Con dicho umbral se obtuvo sensibilidad de 86,26%, especificidad de 81,52%, exactitud de 82,08% y balanced accuracy de 83,89%. Con el umbral convencional de 0,5, la sensibilidad cae a 36,81%, aunque la especificidad sube a 97,41%.</p>
+
+    <p>Este contraste muestra por qué no debe usarse 0,5 de forma automática en una población desbalanceada. Para Kaggle no se usa ningún umbral: se entregan las probabilidades continuas, porque el AUC depende del ordenamiento de los puntajes y no de clases discretas.</p>
+
+    <h2>6. Formato del submission</h2>
+
+    <p>El archivo contiene 13.563 predicciones, sin valores faltantes y en el mismo orden e identificadores del test. Su primera columna conserva el encabezado vacío del identificador, igual que los archivos de entrada, y la segunda columna se denomina <code>Subscription</code>. Las probabilidades se encuentran entre 0,000002 y 0,995314.</p>
+
+    <p>Si Kaggle muestra un error de encabezado, se debe consultar el nombre exacto de la columna identificadora que indique la plataforma. Sin un <code>sample_submission.csv</code>, el formato generado es la inferencia más fiel a los CSV suministrados.</p>
+  </main>
+</body>
+</html>
