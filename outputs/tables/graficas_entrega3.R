@@ -5,8 +5,8 @@
 options(stringsAsFactors = FALSE, scipen = 999, digits = 5)
 
 train_path <- "C:/Users/DELL/Documents/GitHub/entrega_proyecto_MIAD_modelos_estadisticos/data/raw clasificacion/Train bank.csv"
-results_dir <- "C:/Users/DELL/Documents/Codex/2026-07-25/referenced-chatgpt-conversation-this-is-untrusted/outputs/resultados_bank"
-figures_dir <- "C:/Users/DELL/Documents/Codex/2026-07-25/referenced-chatgpt-conversation-this-is-untrusted/outputs/entrega3_figures"
+results_dir <- "C:/Users/DELL/Documents/GitHub/entrega_proyecto_MIAD_modelos_estadisticos/outputs/resultados_bank"
+figures_dir <- "C:/Users/DELL/Documents/GitHub/entrega_proyecto_MIAD_modelos_estadisticos/outputs/entrega3_figures"
 
 dir.create(figures_dir, recursive = TRUE, showWarnings = FALSE)
 
