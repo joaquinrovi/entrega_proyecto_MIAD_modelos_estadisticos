@@ -1,3 +1,5 @@
 "version";"descripcion";"n_predictores";"cv_auc";"kaggle_auc";"posicion_leaderboard";"fecha"
 "v1";"Regresión logística, todas las variables incluyendo Last.Contact.Duration (modelo Kaggle)";16;0,9034;0,91816;"17/20 (equipo)";"2026-07-26"
 "v2_final";"Modelo v1 + I(Age^2) + I(Last.Contact.Duration^2), tras descartar log-transform, variable combinada de historial, y agrupacion de meses raros (todas neutras)";18;0,9069;0,92293;"17/20 (equipo)";"2026-07-26"
+"v3_day_factor";"v2_final + Last.Contact.Day como factor + interaccion Duration:Month + Duration^3";18;0,9106;0,92928;"Mejor del equipo — verificar posicion";"2026-07-26"
+"v4_month_x_poutcome";"v10 + interaccion Last.Contact.Month:Poutcome + discretizacion de Campaign y Age en rangos";20;0,9156;0,93379;"12/20";"2026-07-26"
